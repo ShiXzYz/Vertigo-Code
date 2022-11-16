@@ -16,7 +16,7 @@ public class Motion extends LinearOpMode
     private DcMotor frontLeft;
 
     @Override
-    public void runOpmode() throws InterruptedException
+    public void runOpMode() throws InterruptedException
     {
         backLeft = hardwareMap.dcMotor.get("BL");
         backRight = hardwareMap.dcMotor.get("BR");
@@ -34,20 +34,19 @@ public class Motion extends LinearOpMode
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        )
+
 
         waitForStart();
 
         while(opModeIsActive())
         {
             backLeft.setPower(-gamepad1.left_stick_y);
-            backRight.setPower((-gamepad1.left_stick_y);
-            frontLeft.setPower((-gamepad1.left_stick_y);
-            frontRight.setPower((-gamepad1.left_stick_y);
+            backRight.setPower(-gamepad1.left_stick_y);
+            frontLeft.setPower(-gamepad1.left_stick_y);
+            frontRight.setPower(-gamepad1.left_stick_y);
 
 
             idle();
         }
     }
-
 }
