@@ -7,8 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name = "Motion", group = "TeleOp")
-@Disabled
+@TeleOp(name = "Main", group = "Mecanum Drive")
 public class Motion extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor frontLeft = null;
@@ -19,8 +18,6 @@ public class Motion extends OpMode {
 
     @Override
     public void init() {
-        telemetry.addData("Status", "Initialized");
-
         backLeft = hardwareMap.get(DcMotor.class, "BL");
         backRight = hardwareMap.get(DcMotor.class, "BR");
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
@@ -55,8 +52,8 @@ public class Motion extends OpMode {
         backLeftPower = Range.clip(drive + turn, -1.0, 1.0);
         backRightPower = Range.clip(drive - turn, -1.0, 1.0);
 
-        backLeft.setPower(backLeftPower);
-        backRight.setPower(backRightPower);
+        backLeft.setPower(1);
+        backRight.setPower(1);
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", backLeftPower, backRightPower);
