@@ -52,8 +52,8 @@ public class Motion extends OpMode {
         backLeftPower = Range.clip(drive + turn, -1.0, 1.0);
         backRightPower = Range.clip(drive - turn, -1.0, 1.0);
 
-        backLeft.setPower(1);
-        backRight.setPower(1);
+        backLeft.setPower(backLeftPower);
+        backRight.setPower(backRightPower);
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", backLeftPower, backRightPower);
