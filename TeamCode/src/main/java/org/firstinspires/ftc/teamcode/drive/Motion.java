@@ -1,53 +1,68 @@
 package org.firstinspires.ftc.teamcode.drive;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
+@TeleOp(name = "Motion", group = "TeleOp")
+@Disabled
+public class Motion extends OpMode {
+    private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor frontLeft = null;
+    private DcMotor frontRight = null;
+    private DcMotor backLeft = null;
+    private DcMotor backRight = null;
 
-@TeleOp(name = "Motion", group = "TeleOps")
-
-public class Motion extends LinearOpMode
-{
-    private DcMotor backLeft;
-    private DcMotor backRight;
-    private DcMotor frontRight;
-    private DcMotor frontLeft;
 
     @Override
-    public void runOpmode() throws InterruptedException
-    {
-        backLeft = hardwareMap.dcMotor.get("BL");
-        backRight = hardwareMap.dcMotor.get("BR");
-        frontLeft = hardwareMap.dcMotor.get("FL");
-        frontRight = hardwareMap.dcMotor.get("FR");
+    public void init() {
+        telemetry.addData("Status", "Initialized");
 
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft = hardwareMap.get(DcMotor.class, "BL");
+        backRight = hardwareMap.get(DcMotor.class, "BR");
+        frontLeft = hardwareMap.get(DcMotor.class, "FL");
+        frontRight = hardwareMap.get(DcMotor.class, "FR");
+
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
 
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
-        )
-
-        waitForStart();
-
-        while(opModeIsActive())
-        {
-            backLeft.setPower(-gamepad1.left_stick_y);
-            backRight.setPower((-gamepad1.left_stick_y);
-            frontLeft.setPower((-gamepad1.left_stick_y);
-            frontRight.setPower((-gamepad1.left_stick_y);
-
-
-            idle();
-        }
+        telemetry.addData("Status", "Initialized");
     }
 
+    @Override
+    public void init_loop() {
+    }
+
+    @Override
+    public void start() {
+        runtime.reset();
+    }
+
+    @Override
+    public void loop() {
+        double backLeftPower;
+        double backRightPower;
+        double frontLeftPower;
+        double frontRightPower;
+
+        double drive = -gamepad1.left_stick_y;
+        double turn = gamepad1.right_stick_x;
+        backLeftPower = Range.clip(drive + turn, -1.0, 1.0);
+        backRightPower = Range.clip(drive - turn, -1.0, 1.0);
+
+        backLeft.setPower(backLeftPower);
+        backRight.setPower(backRightPower);
+
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Motors", "left (%.2f), right (%.2f)", backLeftPower, backRightPower);
+    }
+
+    @Override
+    public void stop() {
+    }
 }
