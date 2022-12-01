@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -28,6 +29,7 @@ public class Motion extends OpMode {
         backRight.setDirection(DcMotor.Direction.REVERSE);
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
+        linearSlideMotor.setDirection(DcMotor.Direction.FORWARD);
 
         telemetry.addData("Status", "Initialized");
     }
@@ -43,6 +45,7 @@ public class Motion extends OpMode {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+        linearSlideMotor.setPower(0);
     }
 
     @Override
@@ -74,11 +77,62 @@ public class Motion extends OpMode {
 
     private void WheelMotors(){
 
+        double strafeAxis = 0;
+
+        if(gamepad1.right_bumper){
+            strafeAxis++;
+        }
+        if(gamepad1.left_bumper){
+            strafeAxis--;
+        }
+
+        if(strafeAxis == 0) {
+            ForwardBackward();
+        }else {
+            Strafe(strafeAxis);
+        }
+
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
+
+    }
+
+    private void Strafe(double input){
+
+
         double backLeftPower;
         double backRightPower;
         double frontLeftPower;
         double frontRightPower;
 
+       if(input == 1){
+          // Strafe right
+
+          frontLeftPower = -1;
+          frontRightPower = 1;
+          backLeftPower = 1;
+          backRightPower = -1;
+
+       } else{
+          // Strafe left
+
+           frontLeftPower = 1;
+           frontRightPower = -1;
+           backLeftPower = -1;
+           backRightPower = 1;
+
+       }
+
+        //backLeftPower = Range.clip(drive + turn, -1.0, 1.0);
+        //backRightPower = Range.clip(drive - turn, -1.0, 1.0);
+
+        frontLeft.setPower(frontLeftPower);
+        frontRight.setPower(frontRightPower);
+        backLeft.setPower(backLeftPower);
+        backRight.setPower(backRightPower);
+
+    }
+
+    private void ForwardBackward(){
 
         double x1 = gamepad1.left_stick_x;
         double y1 = -gamepad1.left_stick_y;
@@ -93,9 +147,6 @@ public class Motion extends OpMode {
         backLeft.setPower(y2);
         backRight.setPower(y2);
 
-
-
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Power", "x2: " + x2 + " y2: " + y2);
 
     }
