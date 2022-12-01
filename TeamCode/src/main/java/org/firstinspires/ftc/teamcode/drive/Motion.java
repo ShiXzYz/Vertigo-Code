@@ -37,6 +37,10 @@ public class Motion extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
     }
 
     @Override
@@ -46,17 +50,26 @@ public class Motion extends OpMode {
         double frontLeftPower;
         double frontRightPower;
 
-        double drive = -gamepad1.left_stick_y;
-        double turn = gamepad1.right_stick_x;
-        backLeftPower = Range.clip(drive + turn, -1.0, 1.0);
-        backRightPower = Range.clip(drive - turn, -1.0, 1.0);
 
-        backLeft.setPower(backLeftPower);
-        backRight.setPower(backRightPower);
+        double x1 = gamepad1.left_stick_x;
+        double y1 = -gamepad1.left_stick_y;
+        double x2 = x1*Math.cos(-Math.PI/4);
+        double y2 = y1*Math.sin(-Math.PI/4);
+
+        //backLeftPower = Range.clip(drive + turn, -1.0, 1.0);
+        //backRightPower = Range.clip(drive - turn, -1.0, 1.0);
+
+        frontLeft.setPower(x2);
+        frontRight.setPower(x2);
+        backLeft.setPower(y2);
+        backRight.setPower(y2);
+
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", backLeftPower, backRightPower);
+        telemetry.addData("Power", "x2: " + x2 + " y2: " + y2);
+        //telemetry.addData("Motors", "left (%.2f), right (%.2f)", backLeftPower, backRightPower);
         telemetry.update();
+
     }
 
     @Override
