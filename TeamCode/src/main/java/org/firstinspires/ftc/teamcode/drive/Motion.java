@@ -13,6 +13,7 @@ public class Motion extends OpMode {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
+    private DcMotor linearSlideMotor = null;
 
 
     @Override
@@ -21,6 +22,7 @@ public class Motion extends OpMode {
         backRight = hardwareMap.get(DcMotor.class, "BR");
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
         frontRight = hardwareMap.get(DcMotor.class, "FR");
+        linearSlideMotor = hardwareMap.get(DcMotor.class, "LS");
 
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
@@ -45,6 +47,33 @@ public class Motion extends OpMode {
 
     @Override
     public void loop() {
+
+        WheelMotors();
+
+        LinearSlideMotor();
+
+        //telemetry.addData("Motors", "left (%.2f), right (%.2f)", backLeftPower, backRightPower);
+        telemetry.update();
+
+    }
+
+    private void LinearSlideMotor(){
+
+        double power = 0;
+
+        if(gamepad1.b){
+            power++;
+        }
+        if(gamepad1.a) {
+            power--;
+        }
+
+        linearSlideMotor.setPower(power);
+
+    }
+
+    private void WheelMotors(){
+
         double backLeftPower;
         double backRightPower;
         double frontLeftPower;
@@ -65,10 +94,9 @@ public class Motion extends OpMode {
         backRight.setPower(y2);
 
 
+
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Power", "x2: " + x2 + " y2: " + y2);
-        //telemetry.addData("Motors", "left (%.2f), right (%.2f)", backLeftPower, backRightPower);
-        telemetry.update();
 
     }
 
