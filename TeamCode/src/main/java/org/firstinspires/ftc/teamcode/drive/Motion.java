@@ -71,36 +71,53 @@ public class Motion extends OpMode {
         double power = 0;
 
         if(gamepad2.b){
-            power++;
-        }
-        if(gamepad2.a) {
             power--;
         }
+        if(gamepad2.a) {
+            power++;
+        }
+
+        power *= 0.7;
 
         linearSlideMotor.setPower(power);
 
-        telemetry.addData("LinearSlide", "Linear slide is: " + (power == 0 ? "Resting" : power == 1 ? "Raising" : "Lowering"));
+        telemetry.addData("LinearSlide", "Linear slide is: " + (power == 0 ? "Resting" : power > 1 ? "Raising" : "Lowering"));
 
     }
 
-    private double clawPosition = 0;
+    private double clawPosition = 0.5;
+    private double lastFrameClawAxis = 0;
 
     private void ClawMotor(){
 
-        double clawAxis = 0;
+        double clawAxis = GetClawAxis();
 
+        clawPosition += clawAxis * 0.001;
+
+        clawPosition = Range.clip(clawPosition, 0, 1);
+
+        //  Only change servo position if the button was pressed this frame
+        if(clawAxis != lastFrameClawAxis) {
+            claw.setPosition(clawPosition);
+        }
+
+        telemetry.addData("Claw", "Claw is: " + (clawAxis == 0 ? "Resting" : clawAxis == 1 ? "Opening" : "Closing") + " Position: " + clawPosition);
+
+        lastFrameClawAxis = clawAxis;
+
+    }
+
+    private int GetClawAxis(){
+
+        int output = 0;
         if(gamepad2.y){
-            clawAxis++;
+            output++;
         }
         if(gamepad2.x) {
-            clawAxis--;
+            output--;
         }
 
-        clawPosition += clawAxis;
-
-        claw.setPosition(clawPosition);
-
-        telemetry.addData("Claw", "Claw is: " + (clawAxis == 0 ? "Resting" : clawAxis == 1 ? "Opening" : "Closing"));
+        return -output;
 
     }
 
@@ -137,9 +154,6 @@ public class Motion extends OpMode {
             telemetry.addData("Mode", "Mode: Stopped");
 
         }
-
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-
     }
 
     private int GetStrafeAxis(){
@@ -204,20 +218,18 @@ public class Motion extends OpMode {
 
     private void Turning(){
 
-        double turnAxis = gamepad1.right_stick_x;
+        double turnAxis = -gamepad1.right_stick_x;
 
         frontLeft.setPower(turnAxis);
         frontRight.setPower(-turnAxis);
         backLeft.setPower(turnAxis);
         backRight.setPower(-turnAxis);
 
-        telemetry.addData("Power", "turn axis: " + turnAxis);
-
     }
 
     private void ForwardBackward(){
 
-        double moveAxis = -gamepad1.left_stick_y;
+        double moveAxis = gamepad1.left_stick_y;
         //  ??
         //double x2 = x1*Math.cos(-Math.PI/4);
         //double y2 = y1*Math.sin(-Math.PI/4);
@@ -229,8 +241,6 @@ public class Motion extends OpMode {
         frontRight.setPower(moveAxis);
         backLeft.setPower(moveAxis);
         backRight.setPower(moveAxis);
-
-        telemetry.addData("Power", "move axis: " + moveAxis);
 
     }
 
