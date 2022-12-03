@@ -66,18 +66,35 @@ public class Motion extends OpMode {
 
     }
 
-    private void LinearSlideMotor(){
+    private int GetLinearSlideAxis(){
 
-        double power = 0;
+       int output = 0;
 
         if(gamepad2.b){
-            power--;
+            output--;
         }
         if(gamepad2.a) {
-            power++;
+            output++;
         }
 
-        power *= 0.7;
+        return output;
+    }
+
+    private void LinearSlideMotor(){
+
+        double power = GetLinearSlideAxis();
+
+        //  Slow linear slide
+        power *= 0.4;
+
+        //  SLOW FALL, not tested
+        if(gamepad2.left_bumper){
+            power = -0.0001;
+        }
+        //  Stall linear slide
+        if(gamepad2.right_bumper){
+            power = -0.1;
+        }
 
         linearSlideMotor.setPower(power);
 
@@ -85,7 +102,7 @@ public class Motion extends OpMode {
 
     }
 
-    private double clawPosition = 0.5;
+    private double clawPosition = 0;
     private double lastFrameClawAxis = 0;
 
     private void ClawMotor(){
@@ -94,10 +111,10 @@ public class Motion extends OpMode {
 
         clawPosition += clawAxis * 0.001;
 
-        clawPosition = Range.clip(clawPosition, 0, 1);
+        clawPosition = Range.clip(clawPosition, 0, 0.3);
 
         //  Only change servo position if the button was pressed this frame
-        if(clawAxis != lastFrameClawAxis) {
+        if(clawAxis != 0) {
             claw.setPosition(clawPosition);
         }
 
