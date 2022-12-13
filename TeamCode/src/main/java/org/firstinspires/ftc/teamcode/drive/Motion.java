@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -15,10 +16,9 @@ public class Motion extends OpMode {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    private DcMotor linearSlideMotor = null;
+    private DcMotorEx linearSlideMotor = null;
 
     private Servo claw = null;
-
 
     @Override
     public void init() {
@@ -26,7 +26,7 @@ public class Motion extends OpMode {
         backRight = hardwareMap.get(DcMotor.class, "BR");
         frontLeft = hardwareMap.get(DcMotor.class, "FL");
         frontRight = hardwareMap.get(DcMotor.class, "FR");
-        linearSlideMotor = hardwareMap.get(DcMotor.class, "LS");
+        linearSlideMotor = hardwareMap.get(DcMotorEx.class, "LS");
 
         claw = hardwareMap.get(Servo.class, "CM");
 
@@ -34,7 +34,9 @@ public class Motion extends OpMode {
         backRight.setDirection(DcMotor.Direction.REVERSE);
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
-        linearSlideMotor.setDirection(DcMotor.Direction.FORWARD);
+        linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry.addData("Status", "Initialized");
     }
@@ -71,34 +73,32 @@ public class Motion extends OpMode {
        int output = 0;
 
         if(gamepad2.b){
-            output--;
+            output++;
         }
         if(gamepad2.a) {
-            output++;
+            output--;
         }
 
         return output;
     }
 
+    private int lastLSPosition = 0;
+
     private void LinearSlideMotor(){
 
-        double power = GetLinearSlideAxis();
-
-        //  Slow linear slide
-        power *= 0.4;
-
-        //  SLOW FALL, not tested
-        if(gamepad2.left_bumper){
-            power = -0.0001;
-        }
-        //  Stall linear slide
-        if(gamepad2.right_bumper){
-            power = -0.1;
+        double axis = GetLinearSlideAxis();
+        int position = 0;
+       if(axis == 1){
+           position = 3000;
+       }
+        if(axis == -1){
+            position = 10;
         }
 
-        linearSlideMotor.setPower(power);
+        linearSlideMotor.setTargetPosition(position);
 
-        telemetry.addData("LinearSlide", "Linear slide is: " + (power == 0 ? "Resting" : power > 1 ? "Raising" : "Lowering"));
+        telemetry.addData("LinearSlide", "Linear slide is: " + (axis == 0 ? "Resting" : axis == 1 ? "Raising" : "Lowering"));
+        telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition());
 
     }
 
@@ -118,7 +118,7 @@ public class Motion extends OpMode {
             claw.setPosition(clawPosition);
         }
 
-        telemetry.addData("Claw", "Claw is: " + (clawAxis == 0 ? "Resting" : clawAxis == 1 ? "Opening" : "Closing") + " Position: " + clawPosition);
+        telemetry.addData("Claw", "Claw is: " + (clawAxis == 0 ? "Resting" : clawAxis > 0 ? "Opening" : "Closing") + " Position: " + clawPosition);
 
         lastFrameClawAxis = clawAxis;
 
