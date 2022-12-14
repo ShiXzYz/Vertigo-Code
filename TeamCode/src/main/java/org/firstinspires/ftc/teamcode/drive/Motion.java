@@ -29,6 +29,7 @@ public class Motion extends OpMode {
         claw.myInit();
 
         telemetry.addData("Status", "Initialized");
+
     }
 
     @Override
