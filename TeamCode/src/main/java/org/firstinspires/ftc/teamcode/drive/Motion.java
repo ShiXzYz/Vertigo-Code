@@ -76,6 +76,7 @@ public class Motion extends OpMode {
 
         public void myInit(){
 
+
             //  STATES:
             //  0: Resting
             //  1: Going to position
