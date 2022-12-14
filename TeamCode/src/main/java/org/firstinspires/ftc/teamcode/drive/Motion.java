@@ -3,10 +3,15 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import java.util.ArrayList;
+
+import java.util.ArrayList;
+
+import javax.security.auth.callback.Callback;
 
 @TeleOp(name = "Main", group = "Mecanum Drive")
 public class Motion extends OpMode {
@@ -65,12 +70,31 @@ public class Motion extends OpMode {
 
     private class MyLinearSlideClass{
 
-        private DcMotorEx linearSlideMotor = null;
+        private DcMotor linearSlideMotor = null;
+
+        private StateMachine stateMachine = new StateMachine();
 
         public void myInit(){
 
-            linearSlideMotor = hardwareMap.get(DcMotorEx.class, "LS");
+            //  STATES:
+            //  0: Resting
+            //  1: Going to position
+//            stateMachine.AddState(new CallbackThing() {
+//                @Override
+//                public void OnInit() {
+//                  linearSlideMotor.setPower(0);
+//                }
+//
+//                @Override
+//                public void OnLoop() {
+//
+//                }
+//            });
 
+            linearSlideMotor = hardwareMap.get(DcMotor.class, "LS");
+
+            //  THIS NEEDS TO BE BEFORE SETMODE!!!
+            linearSlideMotor.setTargetPosition(10);
             linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -116,8 +140,14 @@ public class Motion extends OpMode {
 
             linearSlideMotor.setTargetPosition(position);
 
-            telemetry.addData("LinearSlide", "Linear slide is: " + (axis == 0 ? "Resting" : axis == 1 ? "Raising" : "Lowering"));
-            telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition());
+            if(Math.abs(position - linearSlideMotor.getCurrentPosition()) < 50){
+                linearSlideMotor.setPower(0.5);
+            }else{
+                linearSlideMotor.setPower(0);
+            }
+
+            telemetry.addData("LinearSlide", "Linear slide is: " + (axis == 0 ? "Nothing" : axis == 1 ? "Up" : "Down"));
+            telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition() + ", target position: " + position);
 
         }
     }
@@ -329,4 +359,63 @@ public class Motion extends OpMode {
         }
     }
 
+    private class StateMachine{
+
+       private ArrayList<StateObj> states =  new ArrayList<StateObj>();
+
+        private StateObj state = null;
+
+        public  StateMachine(){
+
+        }
+
+        public void OnInitialize(){
+
+            state.OnInitialize();
+
+        }
+
+        public void OnLoop(){
+
+            state.OnLoop();
+
+        }
+
+        public void AddState(CallbackThing _stateCallbacks){
+
+            states.add(new StateObj(_stateCallbacks));
+
+        }
+
+        public void SwitchState(int _state){
+            try {
+                state = states.get(_state);
+            }catch (Exception e){
+                telemetry.addData("Fuck Me:", "FUCKFUCKFUCKFUCKFUCK");
+            }
+        }
+    }
+
+    public interface CallbackThing{
+        void OnInit();
+        void OnLoop();
+    }
+
+    private class StateObj{
+
+        public CallbackThing functions = null;
+
+       public StateObj(CallbackThing _callbacks){
+
+           functions = _callbacks;
+
+       }
+
+       public void OnInitialize(){
+          functions.OnInit();
+       }
+        public void OnLoop(){
+            functions.OnLoop();
+        }
+    }
 }
