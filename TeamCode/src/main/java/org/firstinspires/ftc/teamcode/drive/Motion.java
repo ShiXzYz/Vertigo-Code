@@ -72,7 +72,7 @@ public class Motion extends OpMode {
 
         private DcMotor linearSlideMotor = null;
 
-        private StateMachine stateMachine = new StateMachine();
+//        private StateMachine stateMachine = new StateMachine();
 
         public void myInit(){
 
@@ -92,7 +92,7 @@ public class Motion extends OpMode {
 //                }
 //            });
 
-            linearSlideMotor = hardwareMap.get(DcMotor.class, "LS");
+            linearSlideMotor = Motion.this.hardwareMap.get(DcMotor.class, "LS");
 
             //  THIS NEEDS TO BE BEFORE SETMODE!!!
             linearSlideMotor.setTargetPosition(10);
@@ -159,7 +159,7 @@ public class Motion extends OpMode {
 
         public void myInit(){
 
-            claw = hardwareMap.get(Servo.class, "CM");
+            claw = Motion.this.hardwareMap.get(Servo.class, "CM");
 
         }
 
@@ -218,10 +218,10 @@ public class Motion extends OpMode {
 
         public void myInit(){
 
-            backLeft = hardwareMap.get(DcMotor.class, "BL");
-            backRight = hardwareMap.get(DcMotor.class, "BR");
-            frontLeft = hardwareMap.get(DcMotor.class, "FL");
-            frontRight = hardwareMap.get(DcMotor.class, "FR");
+            backLeft = Motion.this.hardwareMap.get(DcMotor.class, "BL");
+            backRight = Motion.this.hardwareMap.get(DcMotor.class, "BR");
+            frontLeft = Motion.this.hardwareMap.get(DcMotor.class, "FL");
+            frontRight = Motion.this.hardwareMap.get(DcMotor.class, "FR");
 
             backLeft.setDirection(DcMotor.Direction.FORWARD);
             backRight.setDirection(DcMotor.Direction.REVERSE);
@@ -360,63 +360,64 @@ public class Motion extends OpMode {
         }
     }
 
-    private class StateMachine{
-
-       private ArrayList<StateObj> states =  new ArrayList<StateObj>();
-
-        private StateObj state = null;
-
-        public  StateMachine(){
-
-        }
-
-        public void OnInitialize(){
-
-            state.OnInitialize();
-
-        }
-
-        public void OnLoop(){
-
-            state.OnLoop();
-
-        }
-
-        public void AddState(CallbackThing _stateCallbacks){
-
-            states.add(new StateObj(_stateCallbacks));
-
-        }
-
-        public void SwitchState(int _state){
-            try {
-                state = states.get(_state);
-            }catch (Exception e){
-                telemetry.addData("Fuck Me:", "FUCKFUCKFUCKFUCKFUCK");
-            }
-        }
-    }
-
-    public interface CallbackThing{
-        void OnInit();
-        void OnLoop();
-    }
-
-    private class StateObj{
-
-        public CallbackThing functions = null;
-
-       public StateObj(CallbackThing _callbacks){
-
-           functions = _callbacks;
-
-       }
-
-       public void OnInitialize(){
-          functions.OnInit();
-       }
-        public void OnLoop(){
-            functions.OnLoop();
-        }
-    }
+    //  State machine
+//    private class StateMachine{
+//
+//       private ArrayList<StateObj> states =  new ArrayList<StateObj>();
+//
+//        private StateObj state = null;
+//
+//        public  StateMachine(){
+//
+//        }
+//
+//        public void OnInitialize(){
+//
+//            state.OnInitialize();
+//
+//        }
+//
+//        public void OnLoop(){
+//
+//            state.OnLoop();
+//
+//        }
+//
+//        public void AddState(CallbackThing _stateCallbacks){
+//
+//            states.add(new StateObj(_stateCallbacks));
+//
+//        }
+//
+//        public void SwitchState(int _state){
+//            try {
+//                state = states.get(_state);
+//            }catch (Exception e){
+//                telemetry.addData("Fuck Me:", "FUCKFUCKFUCKFUCKFUCK");
+//            }
+//        }
+//    }
+//
+//    public interface CallbackThing{
+//        void OnInit();
+//        void OnLoop();
+//    }
+//
+//    private class StateObj{
+//
+//        public CallbackThing functions = null;
+//
+//       public StateObj(CallbackThing _callbacks){
+//
+//           functions = _callbacks;
+//
+//       }
+//
+//       public void OnInitialize(){
+//          functions.OnInit();
+//       }
+//        public void OnLoop(){
+//            functions.OnLoop();
+//        }
+//    }
 }
