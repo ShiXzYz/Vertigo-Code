@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -21,8 +22,12 @@ public class Motion extends OpMode {
     private MyLinearSlideClass linearSlide = null;
     private  MyClawClass claw = null;
 
+   public static HardwareMap hm = null;
+
     @Override
     public void init() {
+
+        hm = hardwareMap;
 
         drivetrain = new MyDrivetrain();
         drivetrain.myInit();
@@ -77,6 +82,7 @@ public class Motion extends OpMode {
         public void myInit(){
 
 
+
             //  STATES:
             //  0: Resting
             //  1: Going to position
@@ -92,13 +98,23 @@ public class Motion extends OpMode {
 //                }
 //            });
 
-            linearSlideMotor = Motion.this.hardwareMap.get(DcMotor.class, "LS");
+            linearSlideMotor = Motion.hm.get(DcMotor.class, "LS");
 
-            //  THIS NEEDS TO BE BEFORE SETMODE!!!
-            linearSlideMotor.setTargetPosition(10);
-            linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+//            //  THIS NEEDS TO BE BEFORE SETMODE!!!
+//            linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
             linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
+            linearSlideMotor.setDirection(DcMotor.Direction.REVERSE);
+
+            // reset encoder counts kept by motors.
+            linearSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            linearSlideMotor.setTargetPosition(10);
+
+
+            linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         }
 
@@ -128,27 +144,82 @@ public class Motion extends OpMode {
             return output;
         }
 
+        private int GetDPadInput(){
+
+            int output = -1;
+
+            if(gamepad2.dpad_right){
+                output = 3;
+            }
+            if(gamepad2.dpad_up) {
+                output = 2;
+            }
+            if(gamepad2.dpad_left){
+                output = 1;
+            }
+            if(gamepad2.dpad_down) {
+                output = 0;
+            }
+
+            return output;
+
+        }
+
+        private int desiredPosition = 0;
+
+        //  PACEHOLDER!!!!!!!!!!!
+        private int[] positions = {10, 1000, 2000, 3000};
+
         private void LinearSlideMotor(){
 
-            double axis = GetLinearSlideAxis();
+
+            int axis = GetLinearSlideAxis();
+            int dpad = GetDPadInput();
+
             int position = 0;
             if(axis == 1){
-                position = 3000;
+                position = desiredPosition + 10;
             }
             if(axis == -1){
-                position = 10;
+                position = desiredPosition - 10;
             }
+
+            if(dpad != -1){
+
+                position = positions[dpad];
+
+            }
+
+            if(axis != 0 || dpad != -1) {
+
+                GoToPosition(position);
+
+            }
+
+            //  Has reached the desired position (within 50 units)
+
+            if(Math.abs(desiredPosition - linearSlideMotor.getCurrentPosition()) < 25){
+
+                linearSlideMotor.setPower(0);
+
+            }
+
+            telemetry.addData("LinearSlide", "Linear slide input: " + (axis == 0 ? "Nothing" : axis == 1 ? "Up" : "Down"));
+            telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition() + ", target position: " + desiredPosition);
+
+        }
+
+        private void GoToPosition(int position){
 
             linearSlideMotor.setTargetPosition(position);
 
-            if(Math.abs(position - linearSlideMotor.getCurrentPosition()) < 50){
-                linearSlideMotor.setPower(0.5);
-            }else{
-                linearSlideMotor.setPower(0);
-            }
+            desiredPosition = position;
 
-            telemetry.addData("LinearSlide", "Linear slide is: " + (axis == 0 ? "Nothing" : axis == 1 ? "Up" : "Down"));
-            telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition() + ", target position: " + position);
+            // set both motors to 25% power. Movement will start. Sign of power is
+            // ignored as sign of target encoder position controls direction when
+            // running to position.
+
+            linearSlideMotor.setPower(0.75);
 
         }
     }
@@ -159,7 +230,7 @@ public class Motion extends OpMode {
 
         public void myInit(){
 
-            claw = Motion.this.hardwareMap.get(Servo.class, "CM");
+            claw = Motion.hm.get(Servo.class, "CM");
 
         }
 
@@ -218,10 +289,10 @@ public class Motion extends OpMode {
 
         public void myInit(){
 
-            backLeft = Motion.this.hardwareMap.get(DcMotor.class, "BL");
-            backRight = Motion.this.hardwareMap.get(DcMotor.class, "BR");
-            frontLeft = Motion.this.hardwareMap.get(DcMotor.class, "FL");
-            frontRight = Motion.this.hardwareMap.get(DcMotor.class, "FR");
+            backLeft = Motion.hm.get(DcMotor.class, "BL");
+            backRight = Motion.hm.get(DcMotor.class, "BR");
+            frontLeft = Motion.hm.get(DcMotor.class, "FL");
+            frontRight = Motion.hm.get(DcMotor.class, "FR");
 
             backLeft.setDirection(DcMotor.Direction.FORWARD);
             backRight.setDirection(DcMotor.Direction.REVERSE);
