@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -83,27 +84,27 @@ public class Authomas extends OpMode {
 
     private class MyLinearSlideClass{
 
-        private DcMotor linearSlideMotor = null;
+        private DcMotorEx linearSlideMotor = null;
 
 //        private StateMachine stateMachine = new StateMachine();
 
         public void myInit(){
 
-            linearSlideMotor = Authomas.hm.get(DcMotor.class, "LS");
+            linearSlideMotor = Authomas.hm.get(DcMotorEx.class, "LS");
 
 //            //  THIS NEEDS TO BE BEFORE SETMODE!!!
-//            linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            linearSlideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 //
-            linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            linearSlideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-            linearSlideMotor.setDirection(DcMotor.Direction.REVERSE);
+            linearSlideMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
             // reset encoder counts kept by motors.
-            linearSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            linearSlideMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
             linearSlideMotor.setTargetPosition(10);
 
 
-            linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            linearSlideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
         }
 
@@ -189,10 +190,10 @@ public class Authomas extends OpMode {
 
     private class MyDrivetrain{
 
-        private DcMotor frontLeft = null;
-        private DcMotor frontRight = null;
-        private DcMotor backLeft = null;
-        private DcMotor backRight = null;
+        private DcMotorEx frontLeft = null;
+        private DcMotorEx frontRight = null;
+        private DcMotorEx backLeft = null;
+        private DcMotorEx backRight = null;
 
         //  0: nothing
         //  1: go forward
@@ -200,40 +201,46 @@ public class Authomas extends OpMode {
 
         public void myInit(){
 
-            backLeft = Authomas.hm.get(DcMotor.class, "BL");
-            backRight = Authomas.hm.get(DcMotor.class, "BR");
-            frontLeft = Authomas.hm.get(DcMotor.class, "FL");
-            frontRight = Authomas.hm.get(DcMotor.class, "FR");
+            backLeft = Authomas.hm.get(DcMotorEx.class, "BL");
+            backRight = Authomas.hm.get(DcMotorEx.class, "BR");
+            frontLeft = Authomas.hm.get(DcMotorEx.class, "FL");
+            frontRight = Authomas.hm.get(DcMotorEx.class, "FR");
 
-            backLeft.setDirection(DcMotor.Direction.REVERSE);
-            backRight.setDirection(DcMotor.Direction.FORWARD);
-            frontLeft.setDirection(DcMotor.Direction.REVERSE);
-            frontRight.setDirection(DcMotor.Direction.FORWARD);
+            backLeft.setDirection(DcMotorEx.Direction.REVERSE);
+            backRight.setDirection(DcMotorEx.Direction.FORWARD);
+            frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
+            frontRight.setDirection(DcMotorEx.Direction.FORWARD);
 
 
-//            backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 //
-//            backLeft.setDirection(DcMotor.Direction.REVERSE);
+//            backLeft.setDirection(DcMotorEx.Direction.REVERSE);
 //
 //            // reset encoder counts kept by motors.
-//            backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 //            backLeft.setTargetPosition(10);
 //
 //
-            backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            backLeft.setTargetPosition(targetPosition);
+
+            backLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+            backRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+            frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+            frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+            backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+
+            backLeft.setPower(0);
 
         }
 
         public void myStart(){
 
-            frontLeft.setPower(0);
+            frontLeft.setPower(power);
 
-            frontRight.setPower(0);
-            backLeft.setPower(0);
-            backRight.setPower(0);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
 
 
 
@@ -257,7 +264,7 @@ public class Authomas extends OpMode {
 
         private void GoForward(){
 
-            if(Math.abs(backLeft.getCurrentPosition()) < targetPosition){
+            if(Math.abs(backLeft.getCurrentPosition()) < targetPosition) {
 
                 frontLeft.setPower(power);
                 frontRight.setPower(power);
@@ -273,7 +280,7 @@ public class Authomas extends OpMode {
 
             }
 
-            telemetry.addData("BackLeft", "Position: " + frontLeft.getCurrentPosition() + ", target position: " + targetPosition);
+            telemetry.addData("BackLeft", "Position: " + backLeft.getCurrentPosition() + ", velocity: " + backLeft.getVelocity() + ", target position: " + targetPosition);
 
         }
     }
