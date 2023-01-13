@@ -94,7 +94,7 @@ public class Authomas extends OpMode {
 
 //            //  THIS NEEDS TO BE BEFORE SETMODE!!!
 //            linearSlideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-//
+
             linearSlideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
             linearSlideMotor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -197,7 +197,7 @@ public class Authomas extends OpMode {
 
         //  0: nothing
         //  1: go forward
-        private int state = 0;
+        private int state = 1;
 
         public void myInit(){
 
@@ -228,19 +228,19 @@ public class Authomas extends OpMode {
             frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
             frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-            backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
-            backLeft.setPower(0);
+            backRight.setPower(0);
 
         }
 
         public void myStart(){
 
-            frontLeft.setPower(power);
+            frontLeft.setPower(0);
 
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
 
 
 
@@ -255,16 +255,17 @@ public class Authomas extends OpMode {
 
         private void WheelMotors(){
 
-            GoForward();
-
+            if(state == 1) {
+                GoForward();
+            }
         }
 
-        private int targetPosition = 500;
+        private int targetPosition = 5000;
         private double power = 0.25;
 
         private void GoForward(){
 
-            if(Math.abs(backLeft.getCurrentPosition()) < targetPosition) {
+            if(Math.abs(backRight.getCurrentPosition()) < targetPosition) {
 
                 frontLeft.setPower(power);
                 frontRight.setPower(power);
@@ -280,7 +281,7 @@ public class Authomas extends OpMode {
 
             }
 
-            telemetry.addData("BackLeft", "Position: " + backLeft.getCurrentPosition() + ", velocity: " + backLeft.getVelocity() + ", target position: " + targetPosition);
+            telemetry.addData("BackLeft", "Position: " + backRight.getCurrentPosition() + ", velocity: " + backRight.getVelocity() + ", target position: " + targetPosition);
 
         }
     }

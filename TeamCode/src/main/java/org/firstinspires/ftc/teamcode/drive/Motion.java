@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -228,6 +229,8 @@ public class Motion extends OpMode {
 
         private Servo claw = null;
 
+        private double closePos = 0.4, openPos = 0.2;
+
         public void myInit(){
 
             claw = Motion.hm.get(Servo.class, "CM");
@@ -252,9 +255,13 @@ public class Motion extends OpMode {
 
             double clawAxis = GetClawAxis();
 
-            clawPosition += clawAxis * 0.001;
+            if(clawAxis == 1){
+                clawPosition = openPos;
+            } else if(clawAxis == -1){
+                clawPosition = closePos;
+            }
 
-            clawPosition = Range.clip(clawPosition, 0, 0.3);
+            clawPosition = Range.clip(clawPosition, 0.2, 0.5);
 
             //  Only change servo position if the button was pressed this frame
             if(clawAxis != 0) {
@@ -287,6 +294,8 @@ public class Motion extends OpMode {
         private DcMotor backLeft = null;
         private DcMotor backRight = null;
 
+        private double strafePower = 0.3f;
+
         public void myInit(){
 
             backLeft = Motion.hm.get(DcMotor.class, "BL");
@@ -298,6 +307,8 @@ public class Motion extends OpMode {
             backRight.setDirection(DcMotor.Direction.REVERSE);
             frontLeft.setDirection(DcMotor.Direction.FORWARD);
             frontRight.setDirection(DcMotor.Direction.REVERSE);
+
+            backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         }
 
@@ -313,6 +324,8 @@ public class Motion extends OpMode {
         public void myLoop(){
 
             WheelMotors();
+
+            telemetry.addData("Position", "FUCK ME: " + backRight.getCurrentPosition());
 
         }
 
@@ -377,18 +390,18 @@ public class Motion extends OpMode {
             if(input == 1){
                 // Strafe right
 
-                frontLeftPower = -1;
-                frontRightPower = 1;
-                backLeftPower = 1;
-                backRightPower = -1;
+                frontLeftPower = -strafePower;
+                frontRightPower = strafePower;
+                backLeftPower = strafePower;
+                backRightPower = -strafePower;
 
             } else{
                 // Strafe left
 
-                frontLeftPower = 1;
-                frontRightPower = -1;
-                backLeftPower = -1;
-                backRightPower = 1;
+                frontLeftPower = strafePower;
+                frontRightPower = -strafePower;
+                backLeftPower = -strafePower;
+                backRightPower = strafePower;
 
             }
 
