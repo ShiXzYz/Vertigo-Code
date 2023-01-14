@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import java.util.ArrayList;
+
 
 
 
@@ -195,11 +197,60 @@ public class Authomas extends OpMode {
         private DcMotorEx backLeft = null;
         private DcMotorEx backRight = null;
 
-        //  0: nothing
-        //  1: go forward
-        private int state = 1;
+        public StateMachine stateMachine;
+
+        private int targetPosition = 5000;
+        private double power = 0.25;
 
         public void myInit(){
+
+           stateMachine = new StateMachine();
+
+            //  STATES:
+            //  0: Resting
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+
+                }
+
+                @Override
+                public void OnLoop() {
+
+                }
+            });
+            //  1: Going forward to position
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+
+                }
+
+                @Override
+                public void OnLoop() {
+                    if(Math.abs(backRight.getCurrentPosition()) < targetPosition) {
+
+                        frontLeft.setPower(power);
+                        frontRight.setPower(power);
+                        backLeft.setPower(power);
+                        backRight.setPower(power);
+
+                    }else{
+
+                        stateMachine.SwitchState(0);
+
+                    }
+
+                    telemetry.addData("BackLeft", "Position: " + backRight.getCurrentPosition() + ", velocity: " + backRight.getVelocity() + ", target position: " + targetPosition);
+                }
+            });
+
+           stateMachine.SwitchState(1);
 
             backLeft = Authomas.hm.get(DcMotorEx.class, "BL");
             backRight = Authomas.hm.get(DcMotorEx.class, "BR");
@@ -242,46 +293,11 @@ public class Authomas extends OpMode {
             backLeft.setPower(0);
             backRight.setPower(0);
 
-
-
         }
 
         public void myLoop(){
 
-            WheelMotors();
-
-        }
-
-
-        private void WheelMotors(){
-
-            if(state == 1) {
-                GoForward();
-            }
-        }
-
-        private int targetPosition = 5000;
-        private double power = 0.25;
-
-        private void GoForward(){
-
-            if(Math.abs(backRight.getCurrentPosition()) < targetPosition) {
-
-                frontLeft.setPower(power);
-                frontRight.setPower(power);
-                backLeft.setPower(power);
-                backRight.setPower(power);
-
-            }else{
-
-                frontLeft.setPower(0);
-                frontRight.setPower(0);
-                backLeft.setPower(0);
-                backRight.setPower(0);
-
-            }
-
-            telemetry.addData("BackLeft", "Position: " + backRight.getCurrentPosition() + ", velocity: " + backRight.getVelocity() + ", target position: " + targetPosition);
+            stateMachine.OnLoop();
 
         }
     }

@@ -11,10 +11,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import java.util.ArrayList;
 
-import java.util.ArrayList;
-
-import javax.security.auth.callback.Callback;
-
 @TeleOp(name = "Main", group = "Mecanum Drive")
 public class Motion extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
@@ -229,7 +225,7 @@ public class Motion extends OpMode {
 
         private Servo claw = null;
 
-        private double closePos = 0.4, openPos = 0.2;
+        private double closePos = 0.6, openPos = 0.4;
 
         public void myInit(){
 
@@ -239,7 +235,7 @@ public class Motion extends OpMode {
 
         public void myStart(){
 
-            claw.setPosition(0);
+            claw.setPosition(openPos);
 
         }
 
@@ -261,7 +257,7 @@ public class Motion extends OpMode {
                 clawPosition = closePos;
             }
 
-            clawPosition = Range.clip(clawPosition, 0.2, 0.5);
+            clawPosition = Range.clip(clawPosition, openPos, closePos);
 
             //  Only change servo position if the button was pressed this frame
             if(clawAxis != 0) {
@@ -296,6 +292,9 @@ public class Motion extends OpMode {
 
         private double strafePower = 0.3f;
 
+        private  StateMachine stateMachine;
+        private int currentState = -1;
+
         public void myInit(){
 
             backLeft = Motion.hm.get(DcMotor.class, "BL");
@@ -310,6 +309,105 @@ public class Motion extends OpMode {
 
             backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
+            stateMachine = new StateMachine();
+
+            // STATES:
+            // 0: Resting
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+                    frontLeft.setPower(0);
+                    frontRight.setPower(0);
+                    backLeft.setPower(0);
+                    backRight.setPower(0);
+                }
+
+                @Override
+                public void OnLoop() {
+
+                }
+            });
+            // 1: Forward backward
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+
+                }
+
+                @Override
+                public void OnLoop() {
+
+                    double moveAxis = gamepad1.left_stick_y;
+
+                    frontLeft.setPower(moveAxis);
+                    frontRight.setPower(moveAxis);
+                    backLeft.setPower(moveAxis);
+                    backRight.setPower(moveAxis);
+
+                }
+            });
+            // 2: Turning
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+
+                }
+
+                @Override
+                public void OnLoop() {
+
+                    double turnAxis = -gamepad1.right_stick_x;
+
+                    frontLeft.setPower(turnAxis);
+                    frontRight.setPower(-turnAxis);
+                    backLeft.setPower(turnAxis);
+                    backRight.setPower(-turnAxis);
+
+                }
+            });
+            // 3: Strafing
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+
+                }
+
+                @Override
+                public void OnLoop() {
+
+                    double backLeftPower;
+                    double backRightPower;
+                    double frontLeftPower;
+                    double frontRightPower;
+
+                    if(GetStrafeAxis() == 1){
+                        // Strafe right
+
+                        frontLeftPower = -strafePower;
+                        frontRightPower = strafePower;
+                        backLeftPower = strafePower;
+                        backRightPower = -strafePower;
+
+                    } else{
+                        // Strafe left
+
+                        frontLeftPower = strafePower;
+                        frontRightPower = -strafePower;
+                        backLeftPower = -strafePower;
+                        backRightPower = strafePower;
+
+                    }
+
+                    frontLeft.setPower(frontLeftPower);
+                    frontRight.setPower(frontRightPower);
+                    backLeft.setPower(backLeftPower);
+                    backRight.setPower(backRightPower);
+
+                }
+            });
+
+            stateMachine.SwitchState(0);
+
         }
 
         public void myStart(){
@@ -323,45 +421,58 @@ public class Motion extends OpMode {
 
         public void myLoop(){
 
-            WheelMotors();
-
-            telemetry.addData("Position", "FUCK ME: " + backRight.getCurrentPosition());
-
-        }
-
-        private void WheelMotors(){
-
             double strafeAxis = GetStrafeAxis();
 
             //  If we're getting forward-backward input
             if(gamepad1.left_stick_y != 0){
                 //  Forward-backward movement
 
-                ForwardBackward();
+                if(currentState != 1) {
+                    stateMachine.SwitchState(1);
+                    currentState = 1;
+                    telemetry.addData("AOENGELSIG", "febefwnefijren");
+                }
 
                 telemetry.addData("Mode", "Mode: forward-backward");
 
             }else if(gamepad1.right_stick_x != 0){
                 //  Turning/rotating movement
 
-                Turning();
+                if(currentState != 2) {
+                    stateMachine.SwitchState(2);
+                    currentState = 2;
+                    telemetry.addData("mmmmmmmmmmmmmmmm", "mmmmmmmmm");
+                }
 
                 telemetry.addData("Mode", "Mode: Turning");
 
-            }if(strafeAxis != 0){
+            }else if(strafeAxis != 0){
                 //  Strafing movement
 
-                Strafe(strafeAxis);
+                if(currentState != 3) {
+                    stateMachine.SwitchState(3);
+                    currentState = 3;
+                    telemetry.addData("oooooooooooooooooo", "ooooooooooooooooo");
+                }
 
                 telemetry.addData("Mode", "Mode: Strafing");
 
             }else{
-
-                StopMovement();
+               if(currentState != 0) {
+                   stateMachine.SwitchState(0);
+                   currentState = 0;
+                   telemetry.addData("RRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRR");
+               }
 
                 telemetry.addData("Mode", "Mode: Stopped");
 
             }
+
+            stateMachine.OnLoop();
+
+            telemetry.addData("Position", "Back left: " + backRight.getCurrentPosition());
+            telemetry.addData("State:", currentState);
+
         }
 
         private int GetStrafeAxis(){
@@ -378,131 +489,5 @@ public class Motion extends OpMode {
             return output;
 
         }
-
-        private void Strafe(double input){
-
-
-            double backLeftPower;
-            double backRightPower;
-            double frontLeftPower;
-            double frontRightPower;
-
-            if(input == 1){
-                // Strafe right
-
-                frontLeftPower = -strafePower;
-                frontRightPower = strafePower;
-                backLeftPower = strafePower;
-                backRightPower = -strafePower;
-
-            } else{
-                // Strafe left
-
-                frontLeftPower = strafePower;
-                frontRightPower = -strafePower;
-                backLeftPower = -strafePower;
-                backRightPower = strafePower;
-
-            }
-
-            frontLeft.setPower(frontLeftPower);
-            frontRight.setPower(frontRightPower);
-            backLeft.setPower(backLeftPower);
-            backRight.setPower(backRightPower);
-
-        }
-
-        private void StopMovement(){
-
-            frontLeft.setPower(0);
-            frontRight.setPower(0);
-            backLeft.setPower(0);
-            backRight.setPower(0);
-
-        }
-
-        private void Turning(){
-
-            double turnAxis = -gamepad1.right_stick_x;
-
-            frontLeft.setPower(turnAxis);
-            frontRight.setPower(-turnAxis);
-            backLeft.setPower(turnAxis);
-            backRight.setPower(-turnAxis);
-
-        }
-
-        private void ForwardBackward(){
-
-            double moveAxis = gamepad1.left_stick_y;
-
-            frontLeft.setPower(moveAxis);
-            frontRight.setPower(moveAxis);
-            backLeft.setPower(moveAxis);
-            backRight.setPower(moveAxis);
-
-        }
     }
-
-    //  State machine
-
-//    private class StateMachine{
-//
-//       private ArrayList<StateObj> states =  new ArrayList<StateObj>();
-//
-//        private StateObj state = null;
-//
-//        public  StateMachine(){
-//
-//        }
-//
-//        public void OnInitialize(){
-//
-//            state.OnInitialize();
-//
-//        }
-//
-//        public void OnLoop(){
-//
-//            state.OnLoop();
-//
-//        }
-//
-//        public void AddState(CallbackThing _stateCallbacks){
-//
-//            states.add(new StateObj(_stateCallbacks));
-//
-//        }
-//
-//        public void SwitchState(int _state){
-//            try {
-//                state = states.get(_state);
-//            }catch (Exception e){
-//                telemetry.addData("Fuck Me:", "FUCKFUCKFUCKFUCKFUCK");
-//            }
-//        }
-//    }
-//
-//    public interface CallbackThing{
-//        void OnInit();
-//        void OnLoop();
-//    }
-//
-//    private class StateObj{
-//
-//        public CallbackThing functions = null;
-//
-//       public StateObj(CallbackThing _callbacks){
-//
-//           functions = _callbacks;
-//
-//       }
-//
-//       public void OnInitialize(){
-//          functions.OnInit();
-//       }
-//        public void OnLoop(){
-//            functions.OnLoop();
-//        }
-//    }
 }
