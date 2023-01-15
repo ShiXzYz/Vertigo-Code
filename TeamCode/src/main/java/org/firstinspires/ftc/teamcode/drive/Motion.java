@@ -21,6 +21,8 @@ public class Motion extends OpMode {
 
    public static HardwareMap hm = null;
 
+    public static double closePos = 0.6, openPos = 0.4;
+
     @Override
     public void init() {
 
@@ -245,7 +247,7 @@ public class Motion extends OpMode {
         private int desiredPosition = 0;
 
         //  PACEHOLDER!!!!!!!!!!!
-        private int[] positions = {10, 1000, 2000, 3000};
+        private int[] positions = {10, 2000, 3000, 4000};
 
 //        private void LinearSlideMotor(){
 //
@@ -303,8 +305,6 @@ public class Motion extends OpMode {
     private class MyClawClass{
 
         private Servo claw = null;
-
-        private double closePos = 0.6, openPos = 0.4;
 
         public void myInit(){
 
@@ -369,7 +369,9 @@ public class Motion extends OpMode {
         private DcMotor backLeft = null;
         private DcMotor backRight = null;
 
-        private double strafePower = 0.3f;
+        private double strafePower = 0.3;
+        private double forwardBackwardPower = 0.5;
+        private double turnPower = 0.5;
 
         private  StateMachine stateMachine;
         private int currentState = -1;
@@ -386,7 +388,8 @@ public class Motion extends OpMode {
             frontLeft.setDirection(DcMotor.Direction.FORWARD);
             frontRight.setDirection(DcMotor.Direction.REVERSE);
 
-            backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
             stateMachine = new StateMachine();
 
@@ -418,10 +421,10 @@ public class Motion extends OpMode {
 
                     double moveAxis = gamepad1.left_stick_y;
 
-                    frontLeft.setPower(moveAxis);
-                    frontRight.setPower(moveAxis);
-                    backLeft.setPower(moveAxis);
-                    backRight.setPower(moveAxis);
+                    frontLeft.setPower(moveAxis * forwardBackwardPower);
+                    frontRight.setPower(moveAxis * forwardBackwardPower);
+                    backLeft.setPower(moveAxis * forwardBackwardPower);
+                    backRight.setPower(moveAxis * forwardBackwardPower);
 
                 }
             });
@@ -437,10 +440,10 @@ public class Motion extends OpMode {
 
                     double turnAxis = -gamepad1.right_stick_x;
 
-                    frontLeft.setPower(turnAxis);
-                    frontRight.setPower(-turnAxis);
-                    backLeft.setPower(turnAxis);
-                    backRight.setPower(-turnAxis);
+                    frontLeft.setPower(turnAxis * turnPower);
+                    frontRight.setPower(-turnAxis * turnPower);
+                    backLeft.setPower(turnAxis * turnPower);
+                    backRight.setPower(-turnAxis * turnPower);
 
                 }
             });
