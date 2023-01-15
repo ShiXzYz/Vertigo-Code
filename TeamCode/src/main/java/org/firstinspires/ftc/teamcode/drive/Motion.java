@@ -74,26 +74,9 @@ public class Motion extends OpMode {
 
         private DcMotor linearSlideMotor = null;
 
-//        private StateMachine stateMachine = new StateMachine();
+        private StateMachine stateMachine;
 
         public void myInit(){
-
-
-
-            //  STATES:
-            //  0: Resting
-            //  1: Going to position
-//            stateMachine.AddState(new CallbackThing() {
-//                @Override
-//                public void OnInit() {
-//                  linearSlideMotor.setPower(0);
-//                }
-//
-//                @Override
-//                public void OnLoop() {
-//
-//                }
-//            });
 
             linearSlideMotor = Motion.hm.get(DcMotor.class, "LS");
 
@@ -113,6 +96,91 @@ public class Motion extends OpMode {
 
             linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+
+
+
+            stateMachine = new StateMachine();
+
+            //  STATES:
+            //  0: Resting
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+
+                    linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    linearSlideMotor.setPower(0.01);
+
+                }
+
+                @Override
+                public void OnLoop() {
+
+                }
+            });
+            // 1: Fine movement
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+                    linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                }
+
+                @Override
+                public void OnLoop() {
+                        int axis = GetLinearSlideAxis();
+
+                    if(axis == 1){
+                        linearSlideMotor.setPower(0.75);
+                    }
+                    if(axis == -1){
+                        linearSlideMotor.setPower(-0.75);
+                    }
+                    if(axis == 0){
+                        stateMachine.SwitchState(0);
+                    }
+                }
+            });
+            //  2: Going to position
+            stateMachine.AddState(new CallbackThing() {
+                @Override
+                public void OnInit() {
+                    linearSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                }
+
+                @Override
+                public void OnLoop() {
+
+                    int dpad = GetDPadInput();
+
+                    int position = 0;
+
+                    if(dpad != -1){
+
+                        position = positions[dpad];
+
+                    }
+
+                    if(dpad != -1) {
+
+                        GoToPosition(position);
+
+                    }
+
+                    //  Has reached the desired position (within 50 units)
+
+                    if(Math.abs(desiredPosition - linearSlideMotor.getCurrentPosition()) < 15){
+
+                        linearSlideMotor.setPower(0);
+                        stateMachine.SwitchState(0);
+
+                    }
+
+                    telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition() + ", target position: " + desiredPosition);
+
+                }
+            });
+
+            stateMachine.SwitchState(0);
+
         }
 
         public void myStart(){
@@ -123,7 +191,19 @@ public class Motion extends OpMode {
 
         public void myLoop(){
 
-            LinearSlideMotor();
+            if(GetLinearSlideAxis() != 0){
+
+                stateMachine.SwitchState(1);
+
+            } else if(GetDPadInput() != -1){
+
+                stateMachine.SwitchState(2);
+
+            }
+
+            stateMachine.OnLoop();
+
+            telemetry.addData("Fuck My Ass", stateMachine.state);
 
         }
 
@@ -167,44 +247,43 @@ public class Motion extends OpMode {
         //  PACEHOLDER!!!!!!!!!!!
         private int[] positions = {10, 1000, 2000, 3000};
 
-        private void LinearSlideMotor(){
-
-
-            int axis = GetLinearSlideAxis();
-            int dpad = GetDPadInput();
-
-            int position = 0;
-            if(axis == 1){
-                position = desiredPosition + 10;
-            }
-            if(axis == -1){
-                position = desiredPosition - 10;
-            }
-
-            if(dpad != -1){
-
-                position = positions[dpad];
-
-            }
-
-            if(axis != 0 || dpad != -1) {
-
-                GoToPosition(position);
-
-            }
-
-            //  Has reached the desired position (within 50 units)
-
-            if(Math.abs(desiredPosition - linearSlideMotor.getCurrentPosition()) < 25){
-
-                linearSlideMotor.setPower(0);
-
-            }
-
-            telemetry.addData("LinearSlide", "Linear slide input: " + (axis == 0 ? "Nothing" : axis == 1 ? "Up" : "Down"));
-            telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition() + ", target position: " + desiredPosition);
-
-        }
+//        private void LinearSlideMotor(){
+//
+//
+//            int axis = GetLinearSlideAxis();
+//            int dpad = GetDPadInput();
+//
+//            int position = 0;
+//            if(axis == 1){
+//                position = linearSlideMotor.getCurrentPosition() + 10;
+//            }
+//            if(axis == -1){
+//                position = linearSlideMotor.getCurrentPosition() - 10;
+//            }
+//
+//            if(dpad != -1){
+//
+//                position = positions[dpad];
+//
+//            }
+//
+//            if(axis != 0 || dpad != -1) {
+//
+//                GoToPosition(position);
+//
+//            }
+//
+//            //  Has reached the desired position (within 50 units)
+//
+//            if(Math.abs(desiredPosition - linearSlideMotor.getCurrentPosition()) < 25){
+//
+//                linearSlideMotor.setPower(0);
+//
+//            }
+//
+//            telemetry.addData("LinearSlide", "Linear slide input: " + (axis == 0 ? "Nothing" : axis == 1 ? "Up" : "Down"));
+//            telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition() + ", target position: " + desiredPosition);
+//        }
 
         private void GoToPosition(int position){
 

@@ -6,7 +6,9 @@ class StateMachine {
 
     private ArrayList<StateObj> states = new ArrayList<StateObj>();
 
-    private StateObj state = null;
+    private StateObj stateObj = null;
+
+    public  int state = -1;
 
     public StateMachine() {
 
@@ -14,26 +16,27 @@ class StateMachine {
 
     public void OnInitialize() {
 
-        state.OnInitialize();
+        stateObj.OnInitialize();
 
     }
 
     public void OnLoop() {
 
-        state.OnLoop();
+        stateObj.OnLoop();
 
     }
 
-    public void AddState(CallbackThing _stateCallbacks) {
+    public void AddState(CallbackThing _stateObjCallbacks) {
 
-        states.add(new StateObj(_stateCallbacks));
+        states.add(new StateObj(_stateObjCallbacks));
 
     }
 
-    public void SwitchState(int _state) {
+    public void SwitchState(int _stateObj) {
         try {
-            state = states.get(_state);
-            state.OnInitialize();
+            stateObj = states.get(_stateObj);
+            state = _stateObj;
+            stateObj.OnInitialize();
         } catch (Exception e) {
             //  Can't access telemetry cause its not static
 //            telemetry.addData("Exception:", e.toString());
