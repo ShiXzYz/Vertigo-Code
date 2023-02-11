@@ -10,16 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-//  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-//  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-//  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
 //  The back left wheel encoder is not returning any readings.
 // The above statement is false
-
-
 
 @TeleOp(name = "AuthomasLeft", group = "Mecanum Drive")
 public class AuthomasLeft extends OpMode {
@@ -33,9 +25,6 @@ public class AuthomasLeft extends OpMode {
     private DcMotorEx backRight = null;
 
     private StateMachine stateMachine;
-
-
-    //  TWEAKERS
 
     private double forwardBackwardSpeed = 0.2, strafeSpeed = 0.3;
 

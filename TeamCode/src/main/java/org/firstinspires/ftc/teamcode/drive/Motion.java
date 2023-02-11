@@ -205,7 +205,7 @@ public class Motion extends OpMode {
 
             stateMachine.OnLoop();
 
-            telemetry.addData("Fuck My Ass", stateMachine.state);
+            telemetry.addData("State", stateMachine.state);
 
         }
 
@@ -248,44 +248,6 @@ public class Motion extends OpMode {
 
         //  PACEHOLDER!!!!!!!!!!!
         private int[] positions = {10, 2000, 3000, 4000};
-
-//        private void LinearSlideMotor(){
-//
-//
-//            int axis = GetLinearSlideAxis();
-//            int dpad = GetDPadInput();
-//
-//            int position = 0;
-//            if(axis == 1){
-//                position = linearSlideMotor.getCurrentPosition() + 10;
-//            }
-//            if(axis == -1){
-//                position = linearSlideMotor.getCurrentPosition() - 10;
-//            }
-//
-//            if(dpad != -1){
-//
-//                position = positions[dpad];
-//
-//            }
-//
-//            if(axis != 0 || dpad != -1) {
-//
-//                GoToPosition(position);
-//
-//            }
-//
-//            //  Has reached the desired position (within 50 units)
-//
-//            if(Math.abs(desiredPosition - linearSlideMotor.getCurrentPosition()) < 25){
-//
-//                linearSlideMotor.setPower(0);
-//
-//            }
-//
-//            telemetry.addData("LinearSlide", "Linear slide input: " + (axis == 0 ? "Nothing" : axis == 1 ? "Up" : "Down"));
-//            telemetry.addData("LinearSlide", "Position: " + linearSlideMotor.getCurrentPosition() + ", target position: " + desiredPosition);
-//        }
 
         private void GoToPosition(int position){
 
@@ -512,7 +474,6 @@ public class Motion extends OpMode {
                 if(currentState != 1) {
                     stateMachine.SwitchState(1);
                     currentState = 1;
-                    telemetry.addData("AOENGELSIG", "febefwnefijren");
                 }
 
                 telemetry.addData("Mode", "Mode: forward-backward");
@@ -523,7 +484,6 @@ public class Motion extends OpMode {
                 if(currentState != 2) {
                     stateMachine.SwitchState(2);
                     currentState = 2;
-                    telemetry.addData("mmmmmmmmmmmmmmmm", "mmmmmmmmm");
                 }
 
                 telemetry.addData("Mode", "Mode: Turning");
@@ -534,7 +494,6 @@ public class Motion extends OpMode {
                 if(currentState != 3) {
                     stateMachine.SwitchState(3);
                     currentState = 3;
-                    telemetry.addData("oooooooooooooooooo", "ooooooooooooooooo");
                 }
 
                 telemetry.addData("Mode", "Mode: Strafing");
@@ -543,7 +502,6 @@ public class Motion extends OpMode {
                if(currentState != 0) {
                    stateMachine.SwitchState(0);
                    currentState = 0;
-                   telemetry.addData("RRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRR");
                }
 
                 telemetry.addData("Mode", "Mode: Stopped");
