@@ -4,7 +4,7 @@ FTC Team 16626’s code for the Freight Frenzy Challenge (2021-2022)
 
 ## Getting started
 
-### Download the repository
+### Download the repository!
 
 There are multiple ways to download this code base.
 
